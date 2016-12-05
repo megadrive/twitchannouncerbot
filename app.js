@@ -18,6 +18,20 @@ bot.on("ready", function(){
 	setInterval(checkIfOnline, 60000);
 });
 
+bot.on("message", function(msg){
+	// do not respond to bots
+	if(msg.author.bot)
+		return;
+
+	checkIfOnline();
+
+	for(let key in commands){
+		if(msg.content.startsWith(config.prefix + key)){
+			commands[key](msg);
+		}
+	}
+});
+
 bot.login(config.oauth);
 
 let commands = {
@@ -56,6 +70,9 @@ let commands = {
 					}
 				});
 		}
+		else {
+			msg.channel.sendMessage(msg.author.username + " -> Usage: !stream_username yourtwitchusername");
+		}
 	},
 
 	/**
@@ -88,6 +105,9 @@ let commands = {
 							})
 					}
 				});
+		}
+		else {
+			msg.channel.sendMessage(msg.author.username + " -> Usage: !output_channel #announcement_channel_here");
 		}
 	},
 
@@ -174,17 +194,3 @@ function announce(username_document, stream_data){
 				});
 		});
 }
-
-bot.on("message", function(msg){
-	// do not respond to bots
-	if(msg.author.bot)
-		return;
-
-	checkIfOnline();
-
-	for(let key in commands){
-		if(msg.content.startsWith(config.prefix + key)){
-			commands[key](msg);
-		}
-	}
-});

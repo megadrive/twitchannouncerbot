@@ -1,0 +1,17 @@
+{
+  "name": "twitchannouncerbot",
+  "version": "0.0.1",
+  "description": "An opt-in Discord bot that outputs to a text-channel when a user goes online.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Megadrive <a.simeon@gmail.com> (http://megadriven.net/)",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^10.0.1",
+    "forerunnerdb": "^1.4.4",
+    "request": "^2.79.0"
+  }
+}

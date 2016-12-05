@@ -1,0 +1,6 @@
+"use strict"
+
+module.exports = {
+	"token": "your_discord_bot_token",
+	"twitch_client_id": "your_twitch_client_id"
+}

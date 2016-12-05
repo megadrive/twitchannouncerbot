@@ -59,19 +59,31 @@ let commands = {
 					if(users.length){
 						db.update(table_name, {"author_id": msg.author.id}, {"twitch_username": args[1], "is_up": false, "guild_id": msg.guild.id})
 							.then(function(){
-								msg.channel.sendMessage(msg.author.username + " -> Updated your twitch username.");
+								msg.channel.sendMessage(msg.author.username + " -> Updated your twitch username.")
+									.then(message => message.delete(60000));
 							})
 					}
 					else{
 						db.insert(table_name, {"author_id": msg.author.id, "twitch_username": args[1], "is_up": false, "guild_id": msg.guild.id})
 							.then(function(){
-								msg.channel.sendMessage(msg.author.username + " -> Updated your twitch username.");
+								msg.channel.sendMessage(msg.author.username + " -> Updated your twitch username.")
+									.then(message => message.delete(60000));
 							})
 					}
 				});
 		}
 		else {
-			msg.channel.sendMessage(msg.author.username + " -> Usage: !stream_username yourtwitchusername");
+			db.find(table_name, {"guild_id": msg.guild.id, "author_id": msg.author.id})
+				.then(function(users){
+					let message = msg.author.username + " -> Usage: `!stream_username yourtwitchusername`";
+					if(users.length){
+						message += " | Current username is: `" + users[0].twitch_username + "`";
+					}
+
+					msg.channel.sendMessage(message)
+						.then(message => message.delete(60000));
+				});
+
 		}
 	},
 
@@ -81,9 +93,9 @@ let commands = {
 	"output_channel": function(msg){
 		console.info("Running command: output_channel");
 
-		if(Object.keys(msg.mentions.channels).length){
+		let table_name = "output_channel";
+		if(msg.mentions.channels.array().length){
 			let channel = msg.mentions.channels.first();
-			let table_name = "output_channel";
 
 			db.find(table_name, {"guild_id": channel.guild.id})
 				.then(function(data){
@@ -91,7 +103,8 @@ let commands = {
 					if(data.length){
 						db.update(table_name, {"guild_id": channel.guild.id}, {"output_channel": channel.id})
 							.then(function(){
-								msg.channel.sendMessage("Set stream announce channel to #" + channel.name);
+								msg.channel.sendMessage("Set stream announce channel to `#" + channel.name + "`.")
+									.then(message => message.delete(60000));
 							});
 					}
 					// If not, insert
@@ -101,13 +114,30 @@ let commands = {
 							"output_channel": channel.id
 						})
 							.then(function(){
-								msg.channel.sendMessage("Set stream announce channel to #" + channel.name);
+								msg.channel.sendMessage("Set stream announce channel to `#" + channel.name + "`.")
+									.then(message => message.delete(60000));
 							})
 					}
 				});
 		}
 		else {
-			msg.channel.sendMessage(msg.author.username + " -> Usage: !output_channel #announcement_channel_here");
+			db.find(table_name, {"guild_id": msg.channel.guild.id})
+				.then(function(channels){
+					let channel_name = null;
+					if(channels.length){
+						let channel = bot.channels.find("id", channels[0].output_channel);
+						if(channel){
+							channel_name = channel.name;
+						}
+					}
+
+					let message = msg.author.username + " -> Usage: `!output_channel #announcement_channel_here`";
+					if(channel_name)
+						message += " | Current channel is: `#" + channel_name + "`";
+
+					msg.channel.sendMessage(message)
+						.then(message => message.delete(60000));;
+				});
 		}
 	},
 
@@ -118,7 +148,6 @@ let commands = {
 		announce({
 			"author_id":msg.author.id,
 			"twitch_username":"megadriving",
-			"is_up":false,
 			"guild_id":msg.guild.id
 		});
 	}

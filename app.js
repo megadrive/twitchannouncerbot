@@ -216,7 +216,7 @@ function announce(username_document, stream_data){
 
 					let channel = bot.channels.find('id', channels[0].output_channel);
 					channel.sendMessage("**" + user.username + "** is now streaming **" + stream_data.stream.game + "** live on Twitch! http://twitch.tv/" + username_document.twitch_username)
-						.then(message => console.log(`Sent message: ${message.content}`))
+						.then(message => message.delete(3600000))
 						.catch(console.error);
 				});
 		});

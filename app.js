@@ -23,8 +23,6 @@ bot.on("message", function(msg){
 	if(msg.author.bot)
 		return;
 
-	checkIfOnline();
-
 	for(let key in commands){
 		if(msg.content.startsWith(config.prefix + key)){
 			commands[key](msg);

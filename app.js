@@ -13,13 +13,18 @@ const time = {
 	"hours": v => v * 3600000
 };
 
+const firstRun = true;
+
 bot.on("ready", function(){
 	console.info("AnnouncerBot ready!");
 
 	bot.user.setUsername("AnnouncerBot");
 
-	checkIfOnline(); // fire once, then start loop
-	setInterval(checkIfOnline, time.minutes(1));
+	if(firstRun){
+		checkIfOnline(); // fire once, then start loop
+		setInterval(checkIfOnline, time.minutes(1));
+		firstRun = false;
+	}
 });
 
 bot.on("message", function(msg){
@@ -162,27 +167,6 @@ const commands = {
 						.then(message => message.delete(time.minutes(1)));
 				});
 		}
-	},
-
-	/**
-	 * Simulates (with argument) when a channel goes online or offline.
-	 * @elevated
-	 */
-	"simulate": function(msg){
-		if(config.elevated_users.indexOf(msg.author.id) === -1)
-			return;
-
-		const args = msg.content.split(/\s+/);
-
-		const simulated = {
-			"guild_id": 1,
-			"author_id": 50
-			"channel_id": 100,
-			"output_channel": test_channel,
-			"is_up": args[0] ? args[0] : false
-		};
-
-		db.find("stream_username", {"guild_id": simulated.guild_id, "author_id": })
 	}
 };
 

@@ -1,19 +1,19 @@
 "use strict";
 
-const config = require("./config");
-const db = require("./db")
+let config = require("./config");
+let db = require("./db")
 
-const request = require("request");
-const Discord = require("discord.js");
-const bot = new Discord.Client();
+let request = require("request");
+let Discord = require("discord.js");
+let bot = new Discord.Client();
 
-const time = {
+let time = {
 	"seconds": v => v * 1000,
 	"minutes": v => v * 60000,
 	"hours": v => v * 3600000
 };
 
-const firstRun = true;
+let firstRun = true;
 
 bot.on("ready", function(){
 	console.info("AnnouncerBot ready!");
@@ -32,7 +32,7 @@ bot.on("message", function(msg){
 	if(msg.author.bot)
 		return;
 
-	for(const key in commands){
+	for(let key in commands){
 		if(msg.content.startsWith(config.prefix + key)){
 			commands[key](msg);
 		}
@@ -41,7 +41,7 @@ bot.on("message", function(msg){
 
 bot.login(config.oauth);
 
-const commands = {
+let commands = {
 	/**
 	 * Output all available commands.
 	 */
@@ -59,7 +59,7 @@ const commands = {
 		if(config.elevated_users.indexOf(msg.author.id) === -1)
 			return;
 
-		const game = msg.content.split(/\s+/).slice(1).join(' ');
+		let game = msg.content.split(/\s+/).slice(1).join(' ');
 		if(game.length > 3){
 			bot.user.setGame(game)
 				.then(function(user){
@@ -78,8 +78,8 @@ const commands = {
 	"stream_username": function(msg){
 		console.info("Running command: stream_username");
 
-		const table_name = "stream_username";
-		const args = msg.content.split(/\s+/);
+		let table_name = "stream_username";
+		let args = msg.content.split(/\s+/);
 
 		if(args[1] !== undefined){
 			db.find(table_name, {"guild_id": msg.guild.id, "author_id": msg.author.id})
@@ -103,7 +103,7 @@ const commands = {
 		else {
 			db.find(table_name, {"guild_id": msg.guild.id, "author_id": msg.author.id})
 				.then(function(users){
-					const message = msg.author.username + " -> Usage: `!stream_username yourtwitchusername`";
+					let message = msg.author.username + " -> Usage: `!stream_username yourtwitchusername`";
 					if(users.length){
 						message += " | Current username is: `" + users[0].twitch_username + "`";
 					}
@@ -121,9 +121,9 @@ const commands = {
 	"output_channel": function(msg){
 		console.info("Running command: output_channel");
 
-		const table_name = "output_channel";
+		let table_name = "output_channel";
 		if(msg.mentions.channels.array().length){
-			const channel = msg.mentions.channels.first();
+			let channel = msg.mentions.channels.first();
 
 			db.find(table_name, {"guild_id": channel.guild.id})
 				.then(function(data){
@@ -151,15 +151,15 @@ const commands = {
 		else {
 			db.find(table_name, {"guild_id": msg.channel.guild.id})
 				.then(function(channels){
-					const channel_name = null;
+					let channel_name = null;
 					if(channels.length){
-						const channel = bot.channels.find("id", channels[0].output_channel);
+						let channel = bot.channels.find("id", channels[0].output_channel);
 						if(channel){
 							channel_name = channel.name;
 						}
 					}
 
-					const message = msg.author.username + " -> Usage: `!output_channel #announcement_channel_here`";
+					let message = msg.author.username + " -> Usage: `!output_channel #announcement_channel_here`";
 					if(channel_name)
 						message += " | Current channel is: `#" + channel_name + "`";
 
@@ -176,8 +176,8 @@ const commands = {
 function checkIfOnline(){
 	db.findAll("stream_username")
 		.then(function(usernames){
-			const api = "https://api.twitch.tv/kraken/streams/";
-			const opts = {
+			let api = "https://api.twitch.tv/kraken/streams/";
+			let opts = {
 				url: "",
 				headers: {
 					"Accept": "application/vnd.twitchtv.v3+json",
@@ -185,7 +185,7 @@ function checkIfOnline(){
 				}
 			};
 
-			for(const i = 0; i < usernames.length; i++) {
+			for(let i = 0; i < usernames.length; i++) {
 				opts.url = api + usernames[i].twitch_username;
 				request(opts, function(err, res, body){
 					if(err)
@@ -193,8 +193,8 @@ function checkIfOnline(){
 
 					db.find("stream_username", {"twitch_username": usernames[i].twitch_username})
 						.then(function(username){
-							const is_currently_streaming = username[0].is_up;
-							const stream_data = JSON.parse(body);
+							let is_currently_streaming = username[0].is_up;
+							let stream_data = JSON.parse(body);
 
 							if(stream_data.stream){
 								if(is_currently_streaming !== true){
@@ -211,9 +211,9 @@ function checkIfOnline(){
 										.then(function(){
 											db.find("output_channel", {"guild_id": username[0].guild_id})
 												.then(function(channel){
-													const chan = bot.channels.find('id', channels[0].output_channel);
+													let chan = bot.channels.find('id', channels[0].output_channel);
 													if(chan){
-														const announce_msg = chan.fetchMessage(username[0].announce_message_id);
+														let announce_msg = chan.fetchMessage(username[0].announce_message_id);
 														if(announce_msg){
 															announce_msg.delete();
 														}
@@ -241,7 +241,7 @@ function announce(username_document, stream_data){
 					if(channels.length === 0)
 						return;
 
-					const channel = bot.channels.find('id', channels[0].output_channel);
+					let channel = bot.channels.find('id', channels[0].output_channel);
 					channel.sendMessage("@here **" + user.username + "** is now streaming **" + stream_data.stream.game + "** live on Twitch! http://twitch.tv/" + username_document.twitch_username)
 						.then(function(message){
 							db.update("stream_messages", {
